@@ -88,13 +88,17 @@ namespace swMesh2XML
             xws.IndentChars = "\t";
             xws.OmitXmlDeclaration = false;
             xws.Encoding = Encoding.UTF8;
+            int docIt = 0;
 
             XmlWriter xw = XmlWriter.Create("temp.xml", xws);
             xw.WriteStartDocument();
             xw.WriteStartElement("mesh");
+            // 6D 65 73 68 07 00 01 00
             // Vertex count
             UInt16 vc = (UInt16)(bin[9] << 8 | bin[8]);
             xw.WriteElementString("vertex_count", vc.ToString());
+            // 13 00
+            docIt += 14;
 
             xw.WriteStartElement("vertices");
             
@@ -102,7 +106,7 @@ namespace swMesh2XML
             for (int i = 0; i < vc; i++)
             {
 
-                byte[] by = bin[(14 + (i * 28))..(14 + ((i + 1) * 28))];
+                byte[] by = bin[(docIt)..(docIt+28)];
                 Single px = BitConverter.ToSingle(by[0..4], 0);
                 Single py = BitConverter.ToSingle(by[4..8]);
                 Single pz = BitConverter.ToSingle(by[8..12]);
@@ -122,13 +126,35 @@ namespace swMesh2XML
                 xw.WriteAttributeString("color", r + " " + g + " " + b + " " + a);
                 xw.WriteAttributeString("normal", nx + " " + ny + " " + nz);
                 xw.WriteEndElement();
+                docIt += 28;
+                //126
                 
             }
 
-
-
-
             xw.WriteEndElement();
+            // edges
+            UInt16 eb = (UInt16)(bin[docIt+1] << 8 | bin[docIt]);
+            xw.WriteElementString("edge_buffer", eb.ToString());
+            // 00 00 00 00
+            int tc = eb / 3;
+            docIt += 6;
+            xw.WriteStartElement("triangles");
+            for (int i = 0; i < tc; i++)
+            {
+                byte[] by = bin[(docIt)..(docIt + 6)];
+                docIt += 6;
+                UInt16 p1 = BitConverter.ToUInt16(by[0..2]);
+                UInt16 p2 = BitConverter.ToUInt16(by[2..4]);
+                UInt16 p3 = BitConverter.ToUInt16(by[4..6]);
+
+                xw.WriteStartElement("triangle");
+                xw.WriteAttributeString("vertices", p1 + " " + p2 + " " + p3);
+                xw.WriteEndElement();
+            }
+            xw.WriteEndElement();
+
+            
+
             xw.WriteEndDocument();
             xw.Flush();
             xw.Close();
