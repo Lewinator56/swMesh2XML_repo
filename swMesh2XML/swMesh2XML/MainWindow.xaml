@@ -81,7 +81,7 @@
                     </Grid.RowDefinitions>
                     <Label Content="XML" Grid.Row="0"/>
                     <Border BorderThickness="1" BorderBrush="LightGray" CornerRadius="5" Grid.Column="0" Height="auto" Padding="10" Grid.Row="1">
-                        <TextBox ScrollViewer.VerticalScrollBarVisibility="Auto" Name="xmlTextBox" AcceptsReturn="True" FontFamily="Courier New" BorderThickness="0,0,0,0" VerticalAlignment="Top" />
+                        <TextBox ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" Name="xmlTextBox" AcceptsReturn="True" FontFamily="Courier New" BorderThickness="0,0,0,0" VerticalAlignment="Top" />
                     </Border>
                 </Grid>
 

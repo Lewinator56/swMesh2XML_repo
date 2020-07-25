@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
 using System.Xml;
+using System.Diagnostics;
 
 namespace swMesh2XML
 {
@@ -93,16 +95,41 @@ namespace swMesh2XML
             // Vertex count
             UInt16 vc = (UInt16)(bin[9] << 8 | bin[8]);
             xw.WriteElementString("vertex_count", vc.ToString());
-            List<byte[]> vl = new List<byte[]>();
+
+            xw.WriteStartElement("vertices");
+            
+            List<vertex> vl = new List<vertex>();
             for (int i = 0; i < vc; i++)
             {
-                vl.Add(bin[(14 + (i * 28))..(14 + (14 + ((i + 1) * 28)))]);
+
+                byte[] by = bin[(14 + (i * 28))..(14 + ((i + 1) * 28))];
+                Single px = BitConverter.ToSingle(by[0..4], 0);
+                Single py = BitConverter.ToSingle(by[4..8]);
+                Single pz = BitConverter.ToSingle(by[8..12]);
+                byte r = by[12];
+                byte g = by[13];
+                byte b = by[14];
+                byte a = by[15];
+                Single nx = BitConverter.ToSingle(by[16..20]);
+                Single ny = BitConverter.ToSingle(by[20..24]);
+                Single nz = BitConverter.ToSingle(by[24..28]);
+                vertex v = new vertex(px, py, pz, r, g, b, a, nx, ny, nz);
+                vl.Add(v);
+                xw.WriteStartElement("vertex");
+
+
+                xw.WriteAttributeString("pos", px + " " + py + " " + pz);
+                xw.WriteAttributeString("color", r + " " + g + " " + b + " " + a);
+                xw.WriteAttributeString("normal", nx + " " + ny + " " + nz);
+                xw.WriteEndElement();
+                
             }
 
 
 
 
             xw.WriteEndElement();
+            xw.WriteEndDocument();
             xw.Flush();
             xw.Close();
             xmlTextBox.Text = File.ReadAllText("temp.xml");
