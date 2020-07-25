@@ -133,11 +133,11 @@ namespace swMesh2XML
 
             xw.WriteEndElement();
             // edges
-            UInt16 eb = (UInt16)(bin[docIt+1] << 8 | bin[docIt]);
+            UInt32 eb = BitConverter.ToUInt32(bin[docIt..(docIt + 4)]);
             xw.WriteElementString("edge_buffer", eb.ToString());
-            // 00 00 00 00
-            int tc = eb / 3;
-            docIt += 6;
+            // 00 00 
+            UInt32 tc = (eb * 2)/6 ;
+            docIt += 4;
             xw.WriteStartElement("triangles");
             for (int i = 0; i < tc; i++)
             {
@@ -150,6 +150,49 @@ namespace swMesh2XML
                 xw.WriteStartElement("triangle");
                 xw.WriteAttributeString("vertices", p1 + " " + p2 + " " + p3);
                 xw.WriteEndElement();
+            }
+            xw.WriteEndElement();
+
+            //Materials
+            xw.WriteStartElement("sub-meshes");
+            UInt16 smc = BitConverter.ToUInt16(bin[docIt..(docIt + 2)]);
+            xw.WriteAttributeString("number", smc + "");
+            docIt += 2;
+            for (int i = 0; i < smc; i++)
+            {
+                xw.WriteStartElement("sub-mesh");
+                UInt32 sms = BitConverter.ToUInt32(bin[docIt..(docIt + 4)]);
+                docIt += 4;
+                UInt32 sme = BitConverter.ToUInt32(bin[docIt..(docIt + 4)]);
+                docIt += 6; // skip a 00 00 pad
+                UInt16 sid = BitConverter.ToUInt16(bin[docIt..(docIt + 2)]);
+                docIt += 2;
+                xw.WriteAttributeString("start_index", sms + "");
+                xw.WriteAttributeString("end_index", sme + "");
+                xw.WriteAttributeString("shader_id", sid + "");
+
+                // culling
+                Single cmxx = BitConverter.ToSingle(bin[docIt..(docIt + 4)]);
+                docIt += 4;
+                Single cmxy = BitConverter.ToSingle(bin[docIt..(docIt + 4)]);
+                docIt += 4;
+                Single cmxz = BitConverter.ToSingle(bin[docIt..(docIt + 4)]);
+                docIt += 4;
+                Single cmnx = BitConverter.ToSingle(bin[docIt..(docIt + 4)]);
+                docIt += 4;
+                Single cmny = BitConverter.ToSingle(bin[docIt..(docIt + 4)]);
+                docIt += 4;
+                Single cmnz = BitConverter.ToSingle(bin[docIt..(docIt + 4)]);
+                docIt += 4;
+                xw.WriteStartElement("culling_area");
+                xw.WriteAttributeString("min", cmxx + " " + cmxy + " " + cmxz);
+                xw.WriteAttributeString("max", cmnx + " " + cmny + " " + cmnz);
+                xw.WriteEndElement();
+                xw.WriteEndElement();
+                docIt += 2;
+                UInt16 idl = BitConverter.ToUInt16(bin[docIt..(docIt + 2)]);
+                docIt += idl;
+                docIt += 14;
             }
             xw.WriteEndElement();
 
