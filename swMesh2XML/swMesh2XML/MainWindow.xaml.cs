@@ -33,7 +33,7 @@ namespace swMesh2XML
         private void OpenFile_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog opf = new Microsoft.Win32.OpenFileDialog();
-            opf.Filter = "Stormworks mesh files (.mesh)|*.MESH|XML file (.xml)|*.xml";
+            opf.Filter = "Stormworks mesh files (.mesh)|*.MESH|XML file (.xml)|*.xml|Wavefront file (.obj)|*.obj";
             Nullable<bool> r = opf.ShowDialog();
             if (r == true)
             {
@@ -41,16 +41,19 @@ namespace swMesh2XML
                 {
                     openMesh(opf.FileName);
                 }
-                else
+                else if (System.IO.Path.GetExtension(opf.FileName) == ".obj")
                 {
-
+                    openObj(opf.FileName);
+                } else
+                {
+                    openXml(opf.FileName);
                 }
             }
         }
 
         private void openMesh(string filePath)
         {
-            binaryTextBox.Text = "";
+            inTextBox.Text = "";
             byte[] f = File.ReadAllBytes(filePath);
             bin = f;
             int nlc = 0;
@@ -60,11 +63,28 @@ namespace swMesh2XML
                 if (nlc == 15)
                 {
                     nlc = 0;
-                    binaryTextBox.Text += Environment.NewLine;
+                    inTextBox.Text += Environment.NewLine;
                 }
-                binaryTextBox.Text += f[i].ToString("X2") + " ";
+                inTextBox.Text += f[i].ToString("X2") + " ";
                 nlc++;
             }
+            toMesh.IsEnabled = false;
+            toXML.IsEnabled = true;
+            this.Title = "swMesh2XML : MESH : " + filePath;
+        }
+        private void openXml(String filePath)
+        {
+            inTextBox.Text = File.ReadAllText(filePath);
+            this.Title = "swMesh2XML : XML : " + filePath;
+            toMesh.IsEnabled = true;
+            toXML.IsEnabled = false;
+        }
+        private void openObj(String filePath)
+        {
+            inTextBox.Text = File.ReadAllText(filePath);
+            this.Title = "swMesh2XML : OBJ : " + filePath;
+            toMesh.IsEnabled = true;
+            toXML.IsEnabled = false;
         }
 
         private void ToXML_Click(object sender, RoutedEventArgs e)
@@ -201,7 +221,21 @@ namespace swMesh2XML
             xw.WriteEndDocument();
             xw.Flush();
             xw.Close();
-            xmlTextBox.Text = File.ReadAllText("temp.xml");
+            outTextBox.Text = File.ReadAllText("temp.xml");
+        }
+
+        private void xmlToMesh()
+        {
+
+        }
+        private void objToMesh()
+        {
+
+        }
+
+        private void toMesh_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

@@ -47,7 +47,7 @@
                             <Label Content="to XML"/>
                         </StackPanel>
                     </Button>
-                    <Button Style="{DynamicResource MaterialDesignToolButton}" Name="toMesh" Height="75" Width="75" Background="White" BorderBrush="LightGray" BorderThickness="2 2 2 2" Foreground="Black" Margin="10" >
+                    <Button Style="{DynamicResource MaterialDesignToolButton}" Name="toMesh" ToolTip="" Height="75" Width="75" Background="White" BorderBrush="LightGray" BorderThickness="2 2 2 2" Foreground="Black" Margin="10" Click="toMesh_Click" >
                         <StackPanel Orientation="Vertical" Margin="-10" >
                             <materialDesign:PackIcon Kind="Printer3d" HorizontalAlignment="Center">
                                 <materialDesign:PackIcon.LayoutTransform>
@@ -69,9 +69,9 @@
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <Label Content="binary" Grid.Row="0"/>
+                    <Label Content="Input" Grid.Row="0"/>
                     <Border BorderThickness="1" BorderBrush="LightGray" CornerRadius="5" Grid.Column="0" Height="auto" Padding="10" Grid.Row="1">
-                        <TextBox ScrollViewer.VerticalScrollBarVisibility="Auto" Name="binaryTextBox" AcceptsReturn="True" FontFamily="Courier New" BorderThickness="0,0,0,0" VerticalAlignment="Top" />
+                        <TextBox ScrollViewer.VerticalScrollBarVisibility="Auto" Name="inTextBox" AcceptsReturn="True" FontFamily="Courier New" BorderThickness="0,0,0,0" VerticalAlignment="Top" />
                     </Border>
                 </Grid>
                 <Grid Margin="10" Grid.Column="1">
@@ -79,9 +79,9 @@
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <Label Content="XML" Grid.Row="0"/>
+                    <Label Content="Output" Grid.Row="0"/>
                     <Border BorderThickness="1" BorderBrush="LightGray" CornerRadius="5" Grid.Column="0" Height="auto" Padding="10" Grid.Row="1">
-                        <TextBox ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" Name="xmlTextBox" AcceptsReturn="True" FontFamily="Courier New" BorderThickness="0,0,0,0" VerticalAlignment="Top" />
+                        <TextBox ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" Name="outTextBox" AcceptsReturn="True" FontFamily="Courier New" BorderThickness="0,0,0,0" VerticalAlignment="Top" />
                     </Border>
                 </Grid>
 
