@@ -25,6 +25,7 @@ namespace swMesh2XML
     public partial class MainWindow : Window
     {
         byte[] bin;
+        string fileType;
         public MainWindow()
         {
             InitializeComponent();
@@ -39,13 +40,18 @@ namespace swMesh2XML
             {
                 if (System.IO.Path.GetExtension(opf.FileName) == ".mesh")
                 {
+                    this.fileType = "mesh";
                     openMesh(opf.FileName);
+                    
                 }
                 else if (System.IO.Path.GetExtension(opf.FileName) == ".obj")
                 {
+                    this.fileType = "obj";
                     openObj(opf.FileName);
+                    
                 } else
                 {
+                    this.fileType = "xml";
                     openXml(opf.FileName);
                 }
             }
@@ -53,6 +59,7 @@ namespace swMesh2XML
 
         private void openMesh(string filePath)
         {
+            
             inTextBox.Text = "";
             byte[] f = File.ReadAllBytes(filePath);
             bin = f;
@@ -84,7 +91,7 @@ namespace swMesh2XML
             inTextBox.Text = File.ReadAllText(filePath);
             this.Title = "swMesh2XML : OBJ : " + filePath;
             toMesh.IsEnabled = true;
-            toXML.IsEnabled = false;
+            toXML.IsEnabled = true;
         }
 
         private void ToXML_Click(object sender, RoutedEventArgs e)
@@ -228,14 +235,187 @@ namespace swMesh2XML
         {
 
         }
-        private void objToMesh()
+        private void objToMesh(string[] data)
         {
+            Debug.WriteLine(data.Length);
+            UInt16 vertexCount = 0;
+            Color c = new Color();
+            c.R = 255;
+            c.G = 255;
+            c.B = 255;
+            c.A = 255;
+            int vtxPosCount = 0;
+            List<int> subMeshVertices = new List<int>();
+            List<SubMesh> subMeshes = new List<SubMesh>();
+            int curretSubmesh = -1;
+            for (int i = 0; i < data.Length; i++)
+            {
+                
+                if (data[i].StartsWith('#'))
+                {
+                    // ignore
+                }
+                else if (data[i].StartsWith("mtllib"))
+                {
+                    //ignore
+                }
+                else if (data[i].StartsWith('o'))
+                {
+                    Debug.WriteLine("adding submesh");
+                    if (data[i].Contains('.'))
+                    {
+                        string[] col = data[i].Split('.')[1].Split('-');
+                        c.R = Convert.ToByte(col[0]);
+                        c.G = Convert.ToByte(col[1]);
+                        c.B = Convert.ToByte(col[2]);
+                        c.A = Convert.ToByte(col[3]);
+
+                    }
+                    curretSubmesh++;
+                    vtxPosCount = 0;
+                    subMeshes.Add(new SubMesh());
+                }
+                else if (data[i].StartsWith('v') && !data[i].StartsWith("vt") && !data[i].StartsWith("vn"))
+                {
+                    string[] v = data[i].Split(' ');
+                    Single vx = Convert.ToSingle(v[1]);
+                    Single vy = Convert.ToSingle(v[2]);
+                    Single vz = Convert.ToSingle(v[3]);
+                    vertex vtx = new vertex(vx, vy, vz, c.R, c.G, c.B, c.A);
+                    subMeshes[curretSubmesh].addVertex(vtx);
+                    subMeshes[curretSubmesh].setCullingMax(vx, vy, vz);
+                    subMeshes[curretSubmesh].setCullingMin(vx, vy, vz);
+                    vertexCount++;
+                    vtxPosCount++;
+                }
+                else if (data[i].StartsWith("vt"))
+                {
+                    // ignore
+                } else if (data[i].StartsWith("vn"))
+                {
+                    string[] n = data[i].Split(' ');
+                    Single nx = Convert.ToSingle(n[1]);
+                    Single ny = Convert.ToSingle(n[2]);
+                    Single nz = Convert.ToSingle(n[3]);
+                    subMeshes[curretSubmesh].vertices[vtxPosCount-1].setNormals(nx, ny, nz);
+                } else if (data[i].StartsWith("usermtl")) {
+                    byte shaderId = Convert.ToByte(data[i].Split(' ')[1]);
+                    subMeshes[curretSubmesh].setShader(shaderId);
+                } else if (data[i].StartsWith('s'))
+                {
+                    // ignore
+                } else if (data[i].StartsWith('f'))
+                {
+                    string[] t = data[i].Split(' ');
+                    byte v1 = Convert.ToByte(t[1].Split('/')[0]);
+                    byte v2 = Convert.ToByte(t[2].Split('/')[0]);
+                    byte v3 = Convert.ToByte(t[3].Split('/')[0]);
+                    Triangle trg = new Triangle(v1, v2, v3);
+                    subMeshes[curretSubmesh].addTriangle(trg);
+                }
+            }
+            Debug.WriteLine(subMeshes.Count);
+            // mesh writer
+
+            // write header
+            List<byte> mesh = new List<byte>();
+            mesh.AddRange(new byte[] { 0x6D, 0x65, 0x73, 0x68, 0x07, 0x00, 0x01, 0x00 });
+            // write vertex count
+            mesh.AddRange(BitConverter.GetBytes(vertexCount));
+            mesh.AddRange(new byte[] { 0x13, 0x00, 0x00, 0x00 });
+            foreach (SubMesh sm in subMeshes)
+            {
+                Debug.WriteLine("looking at submesh");
+                foreach (vertex v in sm.vertices)
+                {
+                    Debug.WriteLine("looking at vertex");
+                    List<byte> vtxDef = new List<byte>();
+                    vtxDef.AddRange(BitConverter.GetBytes(v.px));
+                    vtxDef.AddRange(BitConverter.GetBytes(v.py));
+                    vtxDef.AddRange(BitConverter.GetBytes(v.pz));
+                    vtxDef.Add(v.r);
+                    vtxDef.Add(v.g);
+                    vtxDef.Add(v.b);
+                    vtxDef.Add(v.a);
+                    vtxDef.AddRange(BitConverter.GetBytes(v.nx));
+                    vtxDef.AddRange(BitConverter.GetBytes(v.ny));
+                    vtxDef.AddRange(BitConverter.GetBytes(v.nz));
+                    mesh.AddRange(vtxDef);
+                }
+                
+            }
+            mesh.AddRange(BitConverter.GetBytes(vertexCount));
+            mesh.AddRange(new byte[] { 0x00, 0x00 });
+            foreach (SubMesh sm in subMeshes)
+            {
+                foreach (Triangle t in sm.triangles)
+                {
+                    List<byte> tDef = new List<Byte>();
+                    tDef.AddRange(BitConverter.GetBytes(t.v1));
+                    tDef.AddRange(BitConverter.GetBytes(t.v2));
+                    tDef.AddRange(BitConverter.GetBytes(t.v3));
+                    mesh.AddRange(tDef);
+                }
+            }
+            mesh.AddRange(BitConverter.GetBytes(Convert.ToUInt16(subMeshes.Count())));
+            UInt32 subMeshPosition = 0;
+            foreach (SubMesh sm in subMeshes)
+            {
+                
+                mesh.AddRange(BitConverter.GetBytes(subMeshPosition));
+                subMeshPosition += Convert.ToUInt32(sm.vertices.Count());
+                mesh.AddRange(BitConverter.GetBytes(subMeshPosition));
+                mesh.AddRange(new byte[] { 0x00, 0x00 });
+                mesh.AddRange(BitConverter.GetBytes(sm.shader));
+                foreach (Single s in sm.cullingMin)
+                {
+                    mesh.AddRange(BitConverter.GetBytes(s));
+                }
+                foreach (Single s in sm.cullingMax)
+                {
+                    mesh.AddRange(BitConverter.GetBytes(s));
+                }
+                mesh.AddRange(new byte[] { 0x00, 0x03, 0x00, 0x49, 0x44, 0x33, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x80, 0x3F });
+            }
+            mesh.AddRange(new byte[] { 0x00, 0x00 });
+
+
+            Debug.WriteLine(mesh.Count);
+            //int nlc = 0;
+            //for (int i = 0; i < mesh.Count; i++)
+            //{
+
+            //  if (nlc == 15)
+            // {
+            //   nlc = 0;
+            //  outTextBox.Text += Environment.NewLine;
+            //}
+            //outTextBox.Text += mesh[i].ToString("X2") + " ";
+            //nlc++;
+            //}
+
+            // debug
+            int nlc = 0;
+            foreach (byte b in mesh)
+            {
+                //Debug.WriteLine(b);
+                if (nlc == 15)
+                {
+                    nlc = 0;
+                    outTextBox.Text += Environment.NewLine;
+                }
+                outTextBox.Text += b.ToString("X2") + " ";
+                nlc++;
+            }
 
         }
 
         private void toMesh_Click(object sender, RoutedEventArgs e)
         {
-
+            if (fileType == "obj")
+            {
+                objToMesh(inTextBox.Text.Split("\n"));
+            }
         }
     }
 }

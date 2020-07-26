@@ -32,6 +32,24 @@ namespace swMesh2XML
             this.ny = ny;
             this.nz = nz;
         }
+
+        public vertex(Single px, Single py, Single pz, byte r, byte g, byte b, byte a)
+        {
+            this.px = px;
+            this.py = py;
+            this.pz = pz;
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.a = a;
+        }
+
+        public void setNormals(Single nx, Single ny, Single nz)
+        {
+            this.nx = nx;
+            this.ny = ny;
+            this.nz = nz;
+        }
     }
     
 }
