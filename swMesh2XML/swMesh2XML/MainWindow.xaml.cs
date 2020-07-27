@@ -245,6 +245,7 @@ namespace swMesh2XML
             c.B = 255;
             c.A = 255;
             int vtxPosCount = 0;
+            List<Single> normals = new List<Single>();
             List<int> subMeshVertices = new List<int>();
             List<SubMesh> subMeshes = new List<SubMesh>();
             int curretSubmesh = -1;
@@ -293,6 +294,7 @@ namespace swMesh2XML
                     // ignore
                 } else if (data[i].StartsWith("vn"))
                 {
+                    // todo change for normal matching
                     string[] n = data[i].Split(' ');
                     Single nx = Convert.ToSingle(n[1]);
                     Single ny = Convert.ToSingle(n[2]);
@@ -307,10 +309,11 @@ namespace swMesh2XML
                 } else if (data[i].StartsWith('f'))
                 {
                     string[] t = data[i].Split(' ');
-                    byte v1 = Convert.ToByte(t[1].Split('/')[0]);
-                    byte v2 = Convert.ToByte(t[2].Split('/')[0]);
-                    byte v3 = Convert.ToByte(t[3].Split('/')[0]);
+                    byte v1 = (byte)(Convert.ToByte(t[1].Split('/')[0])-0x01);
+                    byte v2 = (byte)(Convert.ToByte(t[2].Split('/')[0])-0x01);
+                    byte v3 = (byte)(Convert.ToByte(t[3].Split('/')[0])-0x01);
                     Triangle trg = new Triangle(v1, v2, v3);
+
                     subMeshes[curretSubmesh].addTriangle(trg);
                 }
             }
@@ -323,6 +326,7 @@ namespace swMesh2XML
             // write vertex count
             mesh.AddRange(BitConverter.GetBytes(vertexCount));
             mesh.AddRange(new byte[] { 0x13, 0x00, 0x00, 0x00 });
+            UInt32 tc = 0;
             foreach (SubMesh sm in subMeshes)
             {
                 Debug.WriteLine("looking at submesh");
@@ -342,10 +346,12 @@ namespace swMesh2XML
                     vtxDef.AddRange(BitConverter.GetBytes(v.nz));
                     mesh.AddRange(vtxDef);
                 }
+                tc += Convert.ToUInt32(sm.triangles.Count());
                 
             }
-            mesh.AddRange(BitConverter.GetBytes(vertexCount));
-            mesh.AddRange(new byte[] { 0x00, 0x00 });
+            
+            mesh.AddRange(BitConverter.GetBytes(tc*3));
+            //mesh.AddRange(new byte[] { 0x00, 0x00 });
             foreach (SubMesh sm in subMeshes)
             {
                 foreach (Triangle t in sm.triangles)
