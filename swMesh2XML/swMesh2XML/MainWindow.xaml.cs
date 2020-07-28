@@ -43,16 +43,20 @@ namespace swMesh2XML
             Nullable<bool> r = opf.ShowDialog();
             if (r == true)
             {
+                saveFile.IsEnabled = false;
                 if (System.IO.Path.GetExtension(opf.FileName) == ".mesh")
                 {
                     this.fileType = "mesh";
+                    outTextBox.Clear();
                     openMesh(opf.FileName);
                     
                 }
                 else if (System.IO.Path.GetExtension(opf.FileName) == ".obj")
                 {
                     this.fileType = "obj";
+                    outTextBox.Clear();
                     openObj(opf.FileName);
+                    toXML.IsEnabled = false;
                     
                 } else
                 {
@@ -236,6 +240,7 @@ namespace swMesh2XML
             xw.Flush();
             xw.Close();
             outTextBox.Text = File.ReadAllText("temp.xml");
+            saveFile.IsEnabled = true;
         }
 
         private void xmlToMesh()
@@ -463,6 +468,9 @@ namespace swMesh2XML
                 if (fileType == "obj")
                 {
                     File.WriteAllBytes(sfd.FileName, bin);
+                } else if (fileType == "mesh")
+                {
+                    File.WriteAllText(sfd.FileName, outTextBox.Text);
                 }
             }
             
