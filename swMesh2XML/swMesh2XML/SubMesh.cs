@@ -7,7 +7,7 @@ namespace swMesh2XML
     class SubMesh
     {
         public List<vertex> vertices = new List<vertex>();
-        public byte shader;
+        public UInt16 shader;
         public Single[] cullingMin;
         public  Single[] cullingMax;
         public List<Triangle> triangles = new List<Triangle>();
@@ -47,7 +47,7 @@ namespace swMesh2XML
                 cullingMax[0] = z > cullingMax[0] ? z : cullingMax[0];
             }
         }
-        public void setShader(byte shaderID)
+        public void setShader(UInt16 shaderID)
         {
             this.shader = shaderID;
         }
@@ -55,6 +55,7 @@ namespace swMesh2XML
         {
             this.triangles.Add(t);
         }
+
     }
     
 }

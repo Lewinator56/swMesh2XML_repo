@@ -18,8 +18,9 @@ namespace swMesh2XML
         public Single nx;
         public Single ny;
         public Single nz;
+        public Normal n;
 
-        public vertex(Single px, Single py, Single pz, byte r, byte g, byte b, byte a, Single nx, Single ny, Single nz)
+        public vertex(Single px, Single py, Single pz, byte r, byte g, byte b, byte a, Normal n)
         {
             this.px = px;
             this.py = py;
@@ -28,9 +29,7 @@ namespace swMesh2XML
             this.g = g;
             this.b = b;
             this.a = a;
-            this.nx = nx;
-            this.ny = ny;
-            this.nz = nz;
+            this.n = n;
         }
 
         public vertex(Single px, Single py, Single pz, byte r, byte g, byte b, byte a)
@@ -44,11 +43,9 @@ namespace swMesh2XML
             this.a = a;
         }
 
-        public void setNormals(Single nx, Single ny, Single nz)
+        public void setNormals(Normal n)
         {
-            this.nx = nx;
-            this.ny = ny;
-            this.nz = nz;
+            this.n = n;
         }
     }
     
