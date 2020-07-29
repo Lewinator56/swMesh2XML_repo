@@ -199,6 +199,7 @@ namespace swMesh2XML
             for (int i = 0; i < smc; i++)
             {
                 xw.WriteStartElement("sub-mesh");
+                //Debug.WriteLine("iterator: " + docIt);
                 UInt32 sms = BitConverter.ToUInt32(bin[docIt..(docIt + 4)]);
                 docIt += 4;
                 UInt32 sme = BitConverter.ToUInt32(bin[docIt..(docIt + 4)]);
@@ -228,8 +229,8 @@ namespace swMesh2XML
                 xw.WriteEndElement();
                 xw.WriteEndElement();
                 docIt += 2;
-                UInt16 idl = BitConverter.ToUInt16(bin[docIt..(docIt + 2)]);
-                docIt += idl;
+                UInt16 idlength = BitConverter.ToUInt16(bin[docIt..(docIt + 2)]);
+                docIt += idlength;
                 docIt += 14;
             }
             xw.WriteEndElement();
@@ -251,7 +252,7 @@ namespace swMesh2XML
         {
             try
             {
-                Debug.WriteLine(data.Length);
+                //Debug.WriteLine(data.Length);
                 UInt16 vertexCount = 0;
                 Color c = new Color();
                 c.R = 255;
@@ -277,10 +278,10 @@ namespace swMesh2XML
                     }
                     else if (data[i].StartsWith('o'))
                     {
-                        Debug.WriteLine("adding submesh");
-                        if (data[i].Contains('.'))
+                        //Debug.WriteLine("adding submesh");
+                        if (data[i].Contains('/'))
                         {
-                            string[] col = data[i].Split('.')[1].Split('-');
+                            string[] col = data[i].Split(' ')[1].Split('/')[0].Split('-');
                             c.R = Convert.ToByte(col[0]);
                             c.G = Convert.ToByte(col[1]);
                             c.B = Convert.ToByte(col[2]);
@@ -322,7 +323,7 @@ namespace swMesh2XML
                     }
                     else if (data[i].StartsWith("usemtl"))
                     {
-                        UInt16 shaderId = Convert.ToUInt16(data[i].Split(' ')[1]);
+                        UInt16 shaderId = Convert.ToUInt16(data[i].Split(' ')[1].Split('/')[0]);
                         subMeshes[curretSubmesh].setShader(shaderId);
                     }
                     else if (data[i].StartsWith('s'))
@@ -335,19 +336,24 @@ namespace swMesh2XML
                         int nidxv1 = Convert.ToInt32(t[1].Split('/')[2]) - 1;
                         int nidxv2 = Convert.ToInt32(t[2].Split('/')[2]) - 1;
                         int nidxv3 = Convert.ToInt32(t[3].Split('/')[2]) - 1;
-                        byte v1 = (byte)(Convert.ToByte(t[1].Split('/')[0]) - 0x01);
-                        byte v2 = (byte)(Convert.ToByte(t[2].Split('/')[0]) - 0x01);
-                        byte v3 = (byte)(Convert.ToByte(t[3].Split('/')[0]) - 0x01);
+                        UInt16 v1 = (ushort)(Convert.ToUInt16(t[1].Split('/')[0]) - 1);
+                        UInt16 v2 = (ushort)(Convert.ToUInt16(t[2].Split('/')[0]) - 1);
+                        UInt16 v3 = (ushort)(Convert.ToUInt16(t[3].Split('/')[0]) - 1);
                         Triangle trg = new Triangle(v1, v2, v3);
-                        Debug.WriteLine("vertex " + v1 + " inn submesh " + curretSubmesh + "\\" + subMeshes.Count() + " normals " + nidxv1 + " of " + normals.Count());
-                        subMeshes[curretSubmesh].vertices[v1 - subMeshVertices[curretSubmesh]].setNormals(normals[nidxv1]);
-                        subMeshes[curretSubmesh].vertices[v2 - subMeshVertices[curretSubmesh]].setNormals(normals[nidxv2]);
-                        subMeshes[curretSubmesh].vertices[v3 - subMeshVertices[curretSubmesh]].setNormals(normals[nidxv3]);
+                        //Debug.WriteLine("vertex " + (v1 - subMeshVertices[curretSubmesh]) + " of " + subMeshes[curretSubmesh].vertices.Count() + " inn submesh " + curretSubmesh + "\\" + subMeshes.Count() + " normals " + nidxv1 + " of " + normals.Count());
+                        int toSubtract = 0;
+                        for (int j = 0; j < subMeshVertices.Count -1; j++)
+                        {
+                            toSubtract += subMeshVertices[j];
+                        }
+                        subMeshes[curretSubmesh].vertices[v1 - (ushort)toSubtract].setNormals(normals[nidxv1]);
+                        subMeshes[curretSubmesh].vertices[v2 - (ushort)toSubtract].setNormals(normals[nidxv2]);
+                        subMeshes[curretSubmesh].vertices[v3 - (ushort)toSubtract].setNormals(normals[nidxv3]);
 
                         subMeshes[curretSubmesh].addTriangle(trg);
                     }
                 }
-                Debug.WriteLine(subMeshes.Count);
+               // Debug.WriteLine(subMeshes.Count);
                 // mesh writer
 
                 // write header
@@ -359,10 +365,10 @@ namespace swMesh2XML
                 UInt32 tc = 0;
                 foreach (SubMesh sm in subMeshes)
                 {
-                    Debug.WriteLine("looking at submesh");
+                   // Debug.WriteLine("looking at submesh");
                     foreach (vertex v in sm.vertices)
                     {
-                        Debug.WriteLine("looking at vertex");
+                       // Debug.WriteLine("looking at vertex");
                         List<byte> vtxDef = new List<byte>();
                         vtxDef.AddRange(BitConverter.GetBytes(v.px));
                         vtxDef.AddRange(BitConverter.GetBytes(v.py));
@@ -399,10 +405,10 @@ namespace swMesh2XML
                 {
 
                     mesh.AddRange(BitConverter.GetBytes(subMeshPosition));
-                    subMeshPosition += Convert.ToUInt32(sm.vertices.Count());
-                    mesh.AddRange(BitConverter.GetBytes(sm.vertices.Count()));
+                    subMeshPosition += Convert.ToUInt32(sm.triangles.Count * 3);
+                    mesh.AddRange(BitConverter.GetBytes(sm.triangles.Count*3));
                     mesh.AddRange(new byte[] { 0x00, 0x00 });
-                    Debug.WriteLine(sm.shader);
+                    //Debug.WriteLine(sm.shader);
                     mesh.AddRange(BitConverter.GetBytes(sm.shader));
                     foreach (Single s in sm.cullingMin)
                     {
@@ -412,12 +418,12 @@ namespace swMesh2XML
                     {
                         mesh.AddRange(BitConverter.GetBytes(s));
                     }
-                    mesh.AddRange(new byte[] { 0x00, 0x03, 0x00, 0x49, 0x44, 0x33, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x80, 0x3F });
+                    mesh.AddRange(new byte[] { 0x00, 0x00, 0x03, 0x00, 0x49, 0x44, 0x33, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x80, 0x3F });
                 }
                 mesh.AddRange(new byte[] { 0x00, 0x00 });
 
 
-                Debug.WriteLine(mesh.Count);
+               // Debug.WriteLine(mesh.Count);
                 //int nlc = 0;
                 //for (int i = 0; i < mesh.Count; i++)
                 //{
