@@ -57,6 +57,25 @@
                             <Label Content="to mesh"/>
                         </StackPanel>
                     </Button>
+                    <Button Style="{DynamicResource MaterialDesignToolButton}" Name="genPhys" ToolTip="" Height="75" Width="75" Background="White" BorderBrush="LightGray" BorderThickness="2 2 2 2" Foreground="Black" Margin="10"  IsEnabled="false" Click="genPhys_Click">
+                        <StackPanel Orientation="Vertical" Margin="-10" >
+                            <materialDesign:PackIcon Kind="Cricket" HorizontalAlignment="Center">
+                                <materialDesign:PackIcon.LayoutTransform>
+                                    <ScaleTransform ScaleX="2" ScaleY="2"/>
+                                </materialDesign:PackIcon.LayoutTransform>
+                            </materialDesign:PackIcon>
+                            <Label Content="gen phys"/>
+                        </StackPanel>
+                    </Button>
+                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Width="1"/>
+                    <StackPanel Orientation="Vertical" Margin="10">
+                        <Label Content="User Details"/>
+                        <Border BorderThickness="1" BorderBrush="LightGray" CornerRadius="5"  Height="27" Width="200" VerticalAlignment="Top">
+                            <TextBox ToolTip="username to suffix on the end of mesh and phys files" Name="uname_suffix_txbx" materialDesign:HintAssist.Hint="username" Margin="5 0 0 0" BorderThickness="0,0,0,0"  Style="{DynamicResource MaterialDesignTextBox}" materialDesign:TextFieldAssist.UnderlineBrush="Transparent"/>
+                        </Border>
+                        <CheckBox Name="suffixUserCheckBox" Content="suffix username"/>
+                    </StackPanel>
+                    
                 </StackPanel>
             </materialDesign:Card>
             <Grid Grid.Row="1">
@@ -71,7 +90,7 @@
                     </Grid.RowDefinitions>
                     <Label Content="Input" Grid.Row="0"/>
                     <Border BorderThickness="1" BorderBrush="LightGray" CornerRadius="5" Grid.Column="0" Height="auto" Padding="10" Grid.Row="1">
-                        <TextBox ScrollViewer.VerticalScrollBarVisibility="Auto" Name="inTextBox" AcceptsReturn="True" FontFamily="Courier New" BorderThickness="0,0,0,0" VerticalAlignment="Top" />
+                        <TextBox TextChanged="inTextBox_TextChanged" ScrollViewer.VerticalScrollBarVisibility="Auto" Name="inTextBox" AcceptsReturn="True" FontFamily="Courier New" BorderThickness="0,0,0,0" VerticalAlignment="Top" />
                     </Border>
                 </Grid>
                 <Grid Margin="10" Grid.Column="1">

@@ -9,7 +9,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <materialDesign:Card Background="White" materialDesign:ShadowAssist.ShadowDepth="Depth2"  VerticalAlignment="Top" UniformCornerRadius="10" MaxWidth="800">
         <StackPanel Orientation="Vertical">
-            <Label Content="Error" Margin="10, 10, 10, 10" FontSize="18"/>
+            <Label Name ="titleText" Content="Error" Margin="10, 10, 10, 10" FontSize="18"/>
             <TextBlock Name="errorText" Margin="15" FontSize="18" TextWrapping="Wrap"/>
             <Button Name="close_btn" Content="Ok" HorizontalAlignment="Right" Height="40" Background="White" materialDesign:ShadowAssist.ShadowDepth="Depth0" BorderThickness="1" BorderBrush="LightGray" Foreground="#FF2196F3" materialDesign:ButtonAssist.CornerRadius="5" Style="{DynamicResource MaterialDesignFlatButton}" Margin="10" Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"/>
         </StackPanel>

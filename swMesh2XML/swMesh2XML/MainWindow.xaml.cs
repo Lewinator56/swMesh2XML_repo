@@ -27,6 +27,7 @@ namespace swMesh2XML
     {
         byte[] bin;
         string fileType;
+        byte[] phys;
         
         public MainWindow()
         {
@@ -49,6 +50,7 @@ namespace swMesh2XML
                     this.fileType = "mesh";
                     outTextBox.Clear();
                     openMesh(opf.FileName);
+                    genPhys.IsEnabled = false;
                     
                 }
                 else if (System.IO.Path.GetExtension(opf.FileName) == ".obj")
@@ -88,6 +90,7 @@ namespace swMesh2XML
             }
             toMesh.IsEnabled = false;
             toXML.IsEnabled = true;
+            genPhys.IsEnabled = false;
             this.Title = "swMesh2XML : MESH : " + filePath;
         }
         private void openXml(String filePath)
@@ -96,9 +99,13 @@ namespace swMesh2XML
             this.Title = "swMesh2XML : XML : " + filePath;
             toMesh.IsEnabled = true;
             toXML.IsEnabled = false;
+            //genPhys.IsEnabled = true;
         }
         private void openObj(String filePath)
         {
+            phys = null;
+            bin = null;
+            genPhys.IsEnabled = false;
             inTextBox.Text = File.ReadAllText(filePath);
             this.Title = "swMesh2XML : OBJ : " + filePath;
             toMesh.IsEnabled = true;
@@ -252,6 +259,8 @@ namespace swMesh2XML
         {
             try
             {
+                phys = null;
+                bin = null;
                 //Debug.WriteLine(data.Length);
                 UInt16 vertexCount = 0;
                 Color c = new Color();
@@ -362,6 +371,9 @@ namespace swMesh2XML
                 // write vertex count
                 mesh.AddRange(BitConverter.GetBytes(vertexCount));
                 mesh.AddRange(new byte[] { 0x13, 0x00, 0x00, 0x00 });
+                List<byte> physGeom = new List<byte>();
+                physGeom.AddRange(new byte[] { 0x70, 0x68, 0x79, 0x73, 0x02, 0x00, 0x01, 0x00 });
+                physGeom.AddRange(BitConverter.GetBytes(vertexCount));
                 UInt32 tc = 0;
                 foreach (SubMesh sm in subMeshes)
                 {
@@ -381,12 +393,18 @@ namespace swMesh2XML
                         vtxDef.AddRange(BitConverter.GetBytes(v.n.y));
                         vtxDef.AddRange(BitConverter.GetBytes(v.n.z));
                         mesh.AddRange(vtxDef);
+
+                        // write physics 
+                        physGeom.AddRange(BitConverter.GetBytes(v.px));
+                        physGeom.AddRange(BitConverter.GetBytes(v.py));
+                        physGeom.AddRange(BitConverter.GetBytes(v.pz));
                     }
                     tc += Convert.ToUInt32(sm.triangles.Count());
 
                 }
 
                 mesh.AddRange(BitConverter.GetBytes(tc * 3));
+                physGeom.AddRange(BitConverter.GetBytes(tc * 3));
                 //mesh.AddRange(new byte[] { 0x00, 0x00 });
                 foreach (SubMesh sm in subMeshes)
                 {
@@ -397,6 +415,10 @@ namespace swMesh2XML
                         tDef.AddRange(BitConverter.GetBytes(t.v3));
                         tDef.AddRange(BitConverter.GetBytes(t.v2));
                         mesh.AddRange(tDef);
+
+                        physGeom.AddRange(BitConverter.GetBytes(Convert.ToUInt32(t.v1)));
+                        physGeom.AddRange(BitConverter.GetBytes(Convert.ToUInt32(t.v3)));
+                        physGeom.AddRange(BitConverter.GetBytes(Convert.ToUInt32(t.v2)));
                     }
                 }
                 mesh.AddRange(BitConverter.GetBytes(Convert.ToUInt16(subMeshes.Count())));
@@ -421,7 +443,7 @@ namespace swMesh2XML
                     mesh.AddRange(new byte[] { 0x00, 0x00, 0x03, 0x00, 0x49, 0x44, 0x33, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x80, 0x3F });
                 }
                 mesh.AddRange(new byte[] { 0x00, 0x00 });
-
+                
 
                // Debug.WriteLine(mesh.Count);
                 //int nlc = 0;
@@ -444,8 +466,16 @@ namespace swMesh2XML
                 outTextBox.Text = bs;
                 outTextBox.Width = 350;
                 outTextBox.TextWrapping = TextWrapping.Wrap;
+                if (suffixUserCheckBox.IsChecked == true)
+                {
+                    byte[] suf = Encoding.UTF8.GetBytes(uname_suffix_txbx.Text);
+                    mesh.AddRange(suf);
+                    physGeom.AddRange(suf);
+                }
                 bin = mesh.ToArray();
+                phys = physGeom.ToArray();
                 saveFile.IsEnabled = true;
+                genPhys.IsEnabled = true;
             }
             catch (Exception e)
             {
@@ -455,6 +485,8 @@ namespace swMesh2XML
             }
 
         }
+
+
 
         private void toMesh_Click(object sender, RoutedEventArgs e)
         {
@@ -478,6 +510,10 @@ namespace swMesh2XML
                 {
                     File.WriteAllText(sfd.FileName, outTextBox.Text);
                 }
+                ErrorPopup ep = new ErrorPopup();
+                ep.titleText.Content = "Save Successful";
+                ep.errorText.Text = "Saved at: " + sfd.FileName;
+                MaterialDesignThemes.Wpf.DialogHost.Show(ep);
             }
             
         }
@@ -487,6 +523,27 @@ namespace swMesh2XML
             ErrorPopup ep = new ErrorPopup();
             ep.errorText.Text = msg;
             MaterialDesignThemes.Wpf.DialogHost.Show(ep);
+        }
+
+        private void genPhys_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Filter = "Stormworks Physics File (.phys) |*.phys";
+            if (sfd.ShowDialog() == true)
+            {
+                    File.WriteAllBytes(sfd.FileName, phys);
+
+                ErrorPopup ep = new ErrorPopup();
+                ep.titleText.Content = "Save phys Successful";
+                ep.errorText.Text = "Saved at: " + sfd.FileName;
+                MaterialDesignThemes.Wpf.DialogHost.Show(ep);
+
+            }
+        }
+
+        private void inTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            genPhys.IsEnabled = false;
         }
     }
 }
