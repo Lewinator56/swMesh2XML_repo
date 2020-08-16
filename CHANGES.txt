@@ -1,0 +1,14 @@
+v0.2.1 Alpha
+------------
+- Changed object and material name formatting
+
+v0.2.2 Alpha
+------------
+- Fixed vertex offset for complex meshes
+
+v0.3 Alpha
+----------
+- Added .phys export (you must first export the mesh file)
+- Added username suffix input and enabler, this will suffix the input onto the end of .mesh and .phys files
+- Added completion dialogs for saving, showing the save locations
+- Updated README to reflect workflow changes
