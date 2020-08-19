@@ -260,6 +260,7 @@ namespace swMesh2XML
         }
         private void objToMesh(string[] data)
         {
+            string error = "";
             try
             {
                 phys = null;
@@ -279,7 +280,7 @@ namespace swMesh2XML
                 subMeshVertices.Add(0);
                 for (int i = 0; i < data.Length; i++)
                 {
-
+                    error = data[i].Substring(0, data[i].IndexOf(' '));
                     if (data[i].StartsWith('#'))
                     {
                         // ignore
@@ -293,6 +294,7 @@ namespace swMesh2XML
                         //Debug.WriteLine("adding submesh");
                         if (data[i].Contains('/'))
                         {
+                            
                             string[] col = data[i].Split(' ')[1].Split('/')[0].Split('-');
                             c.R = Convert.ToByte(col[0]);
                             c.G = Convert.ToByte(col[1]);
@@ -378,11 +380,14 @@ namespace swMesh2XML
                 physGeom.AddRange(new byte[] { 0x70, 0x68, 0x79, 0x73, 0x02, 0x00, 0x01, 0x00 });
                 physGeom.AddRange(BitConverter.GetBytes(vertexCount));
                 UInt32 tc = 0;
+                error = "vtxDefWrite";
                 foreach (SubMesh sm in subMeshes)
                 {
-                   // Debug.WriteLine("looking at submesh");
+                    
+                    // Debug.WriteLine("looking at submesh");
                     foreach (vertex v in sm.vertices)
                     {
+                        
                        // Debug.WriteLine("looking at vertex");
                         List<byte> vtxDef = new List<byte>();
                         vtxDef.AddRange(BitConverter.GetBytes(v.px));
@@ -409,6 +414,7 @@ namespace swMesh2XML
                 mesh.AddRange(BitConverter.GetBytes(tc * 3));
                 physGeom.AddRange(BitConverter.GetBytes(tc * 3));
                 //mesh.AddRange(new byte[] { 0x00, 0x00 });
+                error = "faceWrite";
                 foreach (SubMesh sm in subMeshes)
                 {
                     foreach (Triangle t in sm.triangles)
@@ -426,6 +432,7 @@ namespace swMesh2XML
                 }
                 mesh.AddRange(BitConverter.GetBytes(Convert.ToUInt16(subMeshes.Count())));
                 UInt32 subMeshPosition = 0;
+                error = "subWrite";
                 foreach (SubMesh sm in subMeshes)
                 {
 
@@ -484,7 +491,7 @@ namespace swMesh2XML
             {
                 ErrorPopup ep = new ErrorPopup();
                 Debug.WriteLine(e.StackTrace);
-                ep.errorText.Text = "Oops, Something went wrong! \nPlease check your object file is in the correct format and try again\n\nError Code:\n" + e.StackTrace.Substring(e.StackTrace.LastIndexOf('e')+2) + "\n\nCheck the error guide to find out what this means" ;
+                ep.errorText.Text = "Oops, Something went wrong! \nPlease check your object file is in the correct format and try again\n\nError Code:\n" + e.StackTrace.Substring(e.StackTrace.LastIndexOf('e')+2) + "_" +  error + "\n\nCheck the error guide to find out what this means" ;
                 MaterialDesignThemes.Wpf.DialogHost.Show(ep);
             }
 
