@@ -37,7 +37,10 @@ namespace swMesh2XML
         private void OpenFile_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog opf = new Microsoft.Win32.OpenFileDialog();
-            opf.Filter = "Stormworks mesh files (.mesh)|*.MESH|XML file (.xml)|*.xml|Wavefront file (.obj)|*.obj";
+            opf.Filter = "Wavefront file (.obj)|*.obj";
+
+            // removed .mesh and .xml import for public release
+            //opf.Filter = "Stormworks mesh files (.mesh)|*.MESH|XML file (.xml)|*.xml|Wavefront file (.obj)|*.obj";
             outTextBox.Width = double.NaN;
             outTextBox.TextWrapping = TextWrapping.NoWrap;
             
@@ -480,7 +483,8 @@ namespace swMesh2XML
             catch (Exception e)
             {
                 ErrorPopup ep = new ErrorPopup();
-                ep.errorText.Text = "Oops, Something went wrong! \nPlease check your object file is in the correct format and try again\n\n For the dev:\n" + e.ToString();
+                Debug.WriteLine(e.StackTrace);
+                ep.errorText.Text = "Oops, Something went wrong! \nPlease check your object file is in the correct format and try again\n\nError Code:\n" + e.StackTrace.Substring(e.StackTrace.LastIndexOf('e')+2) + "\n\nCheck the error guide to find out what this means" ;
                 MaterialDesignThemes.Wpf.DialogHost.Show(ep);
             }
 
