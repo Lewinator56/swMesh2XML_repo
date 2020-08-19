@@ -1,0 +1,30 @@
+This file should be used to find out why your mesh caused an error, the following error numbers represent the 'line number' shown in the error message:
+
+294 - 298 -----------------------------------------------------------------------------
+- CAUSE - 
+- Your color on one or more meshes is not formatted correctlly
+- FIX -
+- Make sure the color is in the format R-G-B-A where R,G,B,A are values from 0 to 255
+
+
+335 -----------------------------------------------------------------------------------
+- CAUSE -
+- One or more mesh objects have incorrect material names
+- FIX -
+- Make sure that a) you are exporting materials
+		 b) your material is not named in the format <shaderID>/<material_name>
+
+312 -----------------------------------------------------------------------------------
+- CAUSE -
+- One or more mesh objects is incorrectly triangulated
+- FIX -
+- Re-merge all vertices in all mesh objects, then re-triangulate and re-edge-split each
+  mesh object
+
+392 -----------------------------------------------------------------------------------
+- CAUSE -
+- One or more mesh objects have a vertex with no normals, this normally means there is
+  a line segment in the mesh with no faces
+- FIX - 
+- Re-merge all vertices in all mesh objects, then re-triangulate and re-edge-split each
+  mesh object
