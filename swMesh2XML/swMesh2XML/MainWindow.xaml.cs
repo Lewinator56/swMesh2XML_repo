@@ -280,7 +280,12 @@ namespace swMesh2XML
                 subMeshVertices.Add(0);
                 for (int i = 0; i < data.Length; i++)
                 {
-                    error = data[i].Substring(0, data[i].IndexOf(' '));
+                    try
+                    {
+                        error = data[i].Substring(0, data[i].IndexOf(' '));
+                    }
+                    catch (Exception) { }
+                    
                     if (data[i].StartsWith('#'))
                     {
                         // ignore
