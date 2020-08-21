@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:swMesh2XML"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <materialDesign:DialogHost Background="Transparent">
+    <materialDesign:DialogHost Background="Transparent" Loaded="DialogHost_Loaded">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>

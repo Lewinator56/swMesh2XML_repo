@@ -17,6 +17,9 @@ using System.IO;
 using System.Xml;
 using System.Diagnostics;
 using Microsoft.Win32;
+using System.Globalization;
+using System.Net;
+using MaterialDesignThemes.Wpf;
 
 namespace swMesh2XML
 {
@@ -29,9 +32,11 @@ namespace swMesh2XML
         string fileType;
         byte[] phys;
         
+        
         public MainWindow()
         {
             InitializeComponent();
+            GlobalVar.version = "0.1.4-beta";
         }
 
         private void OpenFile_Click(object sender, RoutedEventArgs e)
@@ -315,9 +320,9 @@ namespace swMesh2XML
                     else if (data[i].StartsWith('v') && !data[i].StartsWith("vt") && !data[i].StartsWith("vn"))
                     {
                         string[] v = data[i].Split(' ');
-                        Single vx = Convert.ToSingle(v[1]);
-                        Single vy = Convert.ToSingle(v[2]);
-                        Single vz = Convert.ToSingle(v[3]);
+                        Single vx = Convert.ToSingle(v[1], CultureInfo.InvariantCulture);
+                        Single vy = Convert.ToSingle(v[2], CultureInfo.InvariantCulture);
+                        Single vz = Convert.ToSingle(v[3], CultureInfo.InvariantCulture);
                         vertex vtx = new vertex(vx, vy, vz, c.R, c.G, c.B, c.A);
                         subMeshes[curretSubmesh].addVertex(vtx);
                         subMeshes[curretSubmesh].setCullingMax(vx, vy, vz);
@@ -334,9 +339,9 @@ namespace swMesh2XML
                     {
                         // todo change for normal matching
                         string[] n = data[i].Split(' ');
-                        Single nx = Convert.ToSingle(n[1]);
-                        Single ny = Convert.ToSingle(n[2]);
-                        Single nz = Convert.ToSingle(n[3]);
+                        Single nx = Convert.ToSingle(n[1], CultureInfo.InvariantCulture);
+                        Single ny = Convert.ToSingle(n[2], CultureInfo.InvariantCulture);
+                        Single nz = Convert.ToSingle(n[3], CultureInfo.InvariantCulture);
                         normals.Add(new Normal(nx, ny, nz));
                         //subMeshes[curretSubmesh].vertices[vtxPosCount-1].setNormals(nx, ny, nz);
                     }
@@ -496,7 +501,8 @@ namespace swMesh2XML
             {
                 ErrorPopup ep = new ErrorPopup();
                 Debug.WriteLine(e.StackTrace);
-                ep.errorText.Text = "Oops, Something went wrong! \nPlease check your object file is in the correct format and try again\n\nError Code:\n" + e.StackTrace.Substring(e.StackTrace.LastIndexOf('e')+2) + "_" +  error + "\n\nCheck the error guide to find out what this means" ;
+
+                ep.errorText.Text = "Oops, Something went wrong! \nPlease check your object file is in the correct format and try again\n\nError Code:\n" + e.StackTrace.Substring(e.StackTrace.LastIndexOf('e')+2) + "_" +  error + "\n\nCheck the error guide to find out what this means\n\n" + e.StackTrace;
                 MaterialDesignThemes.Wpf.DialogHost.Show(ep);
             }
 
@@ -560,6 +566,21 @@ namespace swMesh2XML
         private void inTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             genPhys.IsEnabled = false;
+        }
+
+        private void DialogHost_Loaded(object sender, RoutedEventArgs e)
+        {
+            HttpWebRequest wr = (HttpWebRequest)WebRequest.Create("https://github.com/Lewinator56/swMesh2XML_repo/releases/latest");
+            wr.AllowAutoRedirect = true;
+            HttpWebResponse wrs = (HttpWebResponse)wr.GetResponse();
+            string onlineVer = wrs.ResponseUri.ToString().Substring(wrs.ResponseUri.ToString().LastIndexOf('/') + 1);
+
+            if (onlineVer != GlobalVar.version)
+            {
+                UpdateDialog ud = new UpdateDialog();
+                ud.SetUpdateAvailable(true, onlineVer);
+                DialogHost.Show(ud);
+            }
         }
     }
 }
