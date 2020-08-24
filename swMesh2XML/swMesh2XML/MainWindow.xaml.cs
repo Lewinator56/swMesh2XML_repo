@@ -42,10 +42,10 @@ namespace swMesh2XML
         private void OpenFile_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog opf = new Microsoft.Win32.OpenFileDialog();
-            //opf.Filter = "Wavefront file (.obj)|*.obj";
+            opf.Filter = "Wavefront file (.obj)|*.obj";
 
             // removed .mesh and .xml import for public release
-            opf.Filter = "Stormworks mesh files (.mesh)|*.MESH|XML file (.xml)|*.xml|Wavefront file (.obj)|*.obj";
+            //opf.Filter = "Stormworks mesh files (.mesh)|*.MESH|XML file (.xml)|*.xml|Wavefront file (.obj)|*.obj";
             outTextBox.Width = double.NaN;
             outTextBox.TextWrapping = TextWrapping.NoWrap;
             
