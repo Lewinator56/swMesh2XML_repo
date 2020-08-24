@@ -36,7 +36,7 @@ namespace swMesh2XML
         public MainWindow()
         {
             InitializeComponent();
-            GlobalVar.version = "v0.1.5-beta";
+            GlobalVar.version = "v0.1.6-beta";
         }
 
         private void OpenFile_Click(object sender, RoutedEventArgs e)
@@ -614,17 +614,24 @@ namespace swMesh2XML
 
         private void DialogHost_Loaded(object sender, RoutedEventArgs e)
         {
-            HttpWebRequest wr = (HttpWebRequest)WebRequest.Create("https://github.com/Lewinator56/swMesh2XML_repo/releases/latest");
-            wr.AllowAutoRedirect = true;
-            HttpWebResponse wrs = (HttpWebResponse)wr.GetResponse();
-            string onlineVer = wrs.ResponseUri.ToString().Substring(wrs.ResponseUri.ToString().LastIndexOf('/') + 1);
-
-            if (onlineVer != GlobalVar.version)
+            try
             {
-                UpdateDialog ud = new UpdateDialog();
-                ud.SetUpdateAvailable(true, onlineVer);
-                DialogHost.Show(ud);
+                HttpWebRequest wr = (HttpWebRequest)WebRequest.Create("https://github.com/Lewinator56/swMesh2XML_repo/releases/latest");
+                wr.AllowAutoRedirect = true;
+                HttpWebResponse wrs = (HttpWebResponse)wr.GetResponse();
+                string onlineVer = wrs.ResponseUri.ToString().Substring(wrs.ResponseUri.ToString().LastIndexOf('/') + 1);
+
+                if (onlineVer != GlobalVar.version)
+                {
+                    UpdateDialog ud = new UpdateDialog();
+                    ud.SetUpdateAvailable(true, onlineVer);
+                    DialogHost.Show(ud);
+                }
+            } catch (Exception)
+            {
+
             }
+            
         }
     }
 }
