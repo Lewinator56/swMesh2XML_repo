@@ -289,7 +289,7 @@ namespace swMesh2XML
                     try
                     {
                         error = data[i].Substring(0, data[i].IndexOf(' '));
-                        Debug.WriteLine("error at " + data[i]);
+                        //Debug.WriteLine("error at " + data[i]);
                     }
                     catch (Exception) { }
 
