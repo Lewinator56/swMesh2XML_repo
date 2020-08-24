@@ -11,6 +11,10 @@ namespace swMesh2XML
         public Single[] cullingMin;
         public  Single[] cullingMax;
         public List<Triangle> triangles = new List<Triangle>();
+        public byte r;
+        public byte g;
+        public byte b;
+        public byte a;
 
         public SubMesh()
         {

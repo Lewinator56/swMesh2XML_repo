@@ -36,16 +36,16 @@ namespace swMesh2XML
         public MainWindow()
         {
             InitializeComponent();
-            GlobalVar.version = "0.1.4-beta";
+            GlobalVar.version = "v0.1.5-beta";
         }
 
         private void OpenFile_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog opf = new Microsoft.Win32.OpenFileDialog();
-            opf.Filter = "Wavefront file (.obj)|*.obj";
+            //opf.Filter = "Wavefront file (.obj)|*.obj";
 
             // removed .mesh and .xml import for public release
-            //opf.Filter = "Stormworks mesh files (.mesh)|*.MESH|XML file (.xml)|*.xml|Wavefront file (.obj)|*.obj";
+            opf.Filter = "Stormworks mesh files (.mesh)|*.MESH|XML file (.xml)|*.xml|Wavefront file (.obj)|*.obj";
             outTextBox.Width = double.NaN;
             outTextBox.TextWrapping = TextWrapping.NoWrap;
             
@@ -283,14 +283,31 @@ namespace swMesh2XML
                 List<SubMesh> subMeshes = new List<SubMesh>();
                 int curretSubmesh = -1;
                 subMeshVertices.Add(0);
+                bool needSubmesh = true;
                 for (int i = 0; i < data.Length; i++)
                 {
                     try
                     {
                         error = data[i].Substring(0, data[i].IndexOf(' '));
+                        Debug.WriteLine("error at " + data[i]);
                     }
                     catch (Exception) { }
-                    
+
+                    // bodge fix for irregulat obj exports
+                    if (data[i].StartsWith('v') && needSubmesh == true)
+                    {
+
+                        SubMesh s = new SubMesh();
+                        s.r = c.R;
+                        s.g = c.G;
+                        s.b = c.B;
+                        s.a = c.A;
+                        curretSubmesh++;
+                        subMeshes.Add(s);
+                        subMeshVertices.Add(0);
+                        needSubmesh = false;
+                    }
+
                     if (data[i].StartsWith('#'))
                     {
                         // ignore
@@ -301,6 +318,35 @@ namespace swMesh2XML
                     }
                     else if (data[i].StartsWith('o'))
                     {
+                        if (data[i].Contains('/'))
+                        {
+
+                            string[] col = data[i].Split(' ')[1].Split('/')[0].Split('-');
+                            c.R = Convert.ToByte(col[0]);
+                            c.G = Convert.ToByte(col[1]);
+                            c.B = Convert.ToByte(col[2]);
+                            c.A = Convert.ToByte(col[3]);
+
+                        }
+
+                        if (needSubmesh == true)
+                        {
+                            SubMesh s = new SubMesh();
+                            s.r = c.R;
+                            s.g = c.G;
+                            s.b = c.B;
+                            s.a = c.A;
+                            curretSubmesh++;
+                            subMeshes.Add(s);
+                            subMeshVertices.Add(0);
+                            needSubmesh = false;
+                        } else
+                        {
+                            subMeshes[curretSubmesh].r = c.R;
+                            subMeshes[curretSubmesh].r = c.G;
+                            subMeshes[curretSubmesh].r = c.B;
+                            subMeshes[curretSubmesh].r = c.A;
+                        }
                         //Debug.WriteLine("adding submesh");
                         if (data[i].Contains('/'))
                         {
@@ -312,11 +358,9 @@ namespace swMesh2XML
                             c.A = Convert.ToByte(col[3]);
 
                         }
-                        curretSubmesh++;
-                        vtxPosCount = 0;
-                        subMeshes.Add(new SubMesh());
-                        subMeshVertices.Add(0);
+                        
                     }
+                    
                     else if (data[i].StartsWith('v') && !data[i].StartsWith("vt") && !data[i].StartsWith("vn"))
                     {
                         string[] v = data[i].Split(' ');
@@ -328,7 +372,6 @@ namespace swMesh2XML
                         subMeshes[curretSubmesh].setCullingMax(vx, vy, vz);
                         subMeshes[curretSubmesh].setCullingMin(vx, vy, vz);
                         vertexCount++;
-                        vtxPosCount++;
                         subMeshVertices[curretSubmesh + 1]++;
                     }
                     else if (data[i].StartsWith("vt"))
@@ -375,6 +418,7 @@ namespace swMesh2XML
                         subMeshes[curretSubmesh].vertices[v3 - (ushort)toSubtract].setNormals(normals[nidxv3]);
 
                         subMeshes[curretSubmesh].addTriangle(trg);
+                        needSubmesh = true;
                     }
                 }
                // Debug.WriteLine(subMeshes.Count);
@@ -403,10 +447,10 @@ namespace swMesh2XML
                         vtxDef.AddRange(BitConverter.GetBytes(v.px));
                         vtxDef.AddRange(BitConverter.GetBytes(v.py));
                         vtxDef.AddRange(BitConverter.GetBytes(v.pz));
-                        vtxDef.Add(v.r);
-                        vtxDef.Add(v.g);
-                        vtxDef.Add(v.b);
-                        vtxDef.Add(v.a);
+                        vtxDef.Add(sm.r);
+                        vtxDef.Add(sm.g);
+                        vtxDef.Add(sm.b);
+                        vtxDef.Add(sm.a);
                         vtxDef.AddRange(BitConverter.GetBytes(v.n.x));
                         vtxDef.AddRange(BitConverter.GetBytes(v.n.y));
                         vtxDef.AddRange(BitConverter.GetBytes(v.n.z));
