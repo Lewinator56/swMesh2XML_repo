@@ -12,8 +12,8 @@ The development team for swMesh2XML claim no ownership or rights over any format
 **Q** Can you make a version for 'x'?<br>
 **A** No, I am however potentially working on a generic java version when I get time
 
-**Q** I'm getting errors converting my mesh, why?
+**Q** I'm getting errors converting my mesh, why?<br>
 **A** Please check the error guide located here [Error guide](https://github.com/Lewinator56/swMesh2XML_repo/blob/master/Errors.md)
 
-**Q** Something isn't working
+**Q** Something isn't working<br>
 **A** Submit a support ticket
