@@ -306,6 +306,7 @@ namespace swMesh2XML
                         subMeshes.Add(s);
                         subMeshVertices.Add(0);
                         needSubmesh = false;
+                        Debug.WriteLine("adding submesh");
                     }
 
                     if (data[i].StartsWith('#'))
@@ -326,7 +327,14 @@ namespace swMesh2XML
                             c.G = Convert.ToByte(col[1]);
                             c.B = Convert.ToByte(col[2]);
                             c.A = Convert.ToByte(col[3]);
+                            Debug.WriteLine("changin color: " + c.R + c.G + c.B + c.A);
 
+                        } else
+                        {
+                            c.R = 255;
+                            c.G = 125;
+                            c.B = 0;
+                            c.A = 255;
                         }
 
                         if (needSubmesh == true)
@@ -340,24 +348,15 @@ namespace swMesh2XML
                             subMeshes.Add(s);
                             subMeshVertices.Add(0);
                             needSubmesh = false;
+                            Debug.WriteLine("adding submesh, Color: " + s.r + s.g + s.b + s.a);
                         } else
                         {
                             subMeshes[curretSubmesh].r = c.R;
-                            subMeshes[curretSubmesh].r = c.G;
-                            subMeshes[curretSubmesh].r = c.B;
-                            subMeshes[curretSubmesh].r = c.A;
+                            subMeshes[curretSubmesh].g = c.G;
+                            subMeshes[curretSubmesh].b = c.B;
+                            subMeshes[curretSubmesh].a = c.A;
                         }
                         //Debug.WriteLine("adding submesh");
-                        if (data[i].Contains('/'))
-                        {
-                            
-                            string[] col = data[i].Split(' ')[1].Split('/')[0].Split('-');
-                            c.R = Convert.ToByte(col[0]);
-                            c.G = Convert.ToByte(col[1]);
-                            c.B = Convert.ToByte(col[2]);
-                            c.A = Convert.ToByte(col[3]);
-
-                        }
                         
                     }
                     
@@ -390,7 +389,12 @@ namespace swMesh2XML
                     }
                     else if (data[i].StartsWith("usemtl"))
                     {
-                        UInt16 shaderId = Convert.ToUInt16(data[i].Split(' ')[1].Split('/')[0]);
+                        UInt16 shaderId = 0;
+                        if (data[i].Contains('/'))
+                        {
+                            shaderId = Convert.ToUInt16(data[i].Split(' ')[1].Split('/')[0]);
+                        }
+                        
                         subMeshes[curretSubmesh].setShader(shaderId);
                     }
                     else if (data[i].StartsWith('s'))
