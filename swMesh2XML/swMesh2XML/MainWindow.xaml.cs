@@ -85,17 +85,22 @@ namespace swMesh2XML
             byte[] f = File.ReadAllBytes(filePath);
             bin = f;
             int nlc = 0;
-            for (int i = 0; i < f.Length; i++)
-            {
+            //for (int i = 0; i < f.Length; i++)
+            //{
 
-                if (nlc == 15)
-                {
-                    nlc = 0;
-                    inTextBox.Text += Environment.NewLine;
-                }
-                inTextBox.Text += f[i].ToString("X2") + " ";
+                //if (nlc == 15)
+                //{
+                //    nlc = 0;
+                //    inTextBox.Text += Environment.NewLine;
+                //}
+
+                
+                //inTextBox.Text += f[i].ToString("X2") + " ";
                 nlc++;
-            }
+            //}
+            string bs = BitConverter.ToString(f);
+            bs = bs.Replace('-', ' ');
+            inTextBox.Text = bs;
             toMesh.IsEnabled = false;
             toXML.IsEnabled = true;
             genPhys.IsEnabled = false;
@@ -470,7 +475,7 @@ namespace swMesh2XML
                 }
 
                 mesh.AddRange(BitConverter.GetBytes(tc * 3));
-                physGeom.AddRange(BitConverter.GetBytes(tc * 3));
+                //physGeom.AddRange(BitConverter.GetBytes(tc * 3));
                 //mesh.AddRange(new byte[] { 0x00, 0x00 });
                 error = "faceWrite";
                 foreach (SubMesh sm in subMeshes)
@@ -483,9 +488,9 @@ namespace swMesh2XML
                         tDef.AddRange(BitConverter.GetBytes(t.v2));
                         mesh.AddRange(tDef);
 
-                        physGeom.AddRange(BitConverter.GetBytes(Convert.ToUInt32(t.v1)));
-                        physGeom.AddRange(BitConverter.GetBytes(Convert.ToUInt32(t.v3)));
-                        physGeom.AddRange(BitConverter.GetBytes(Convert.ToUInt32(t.v2)));
+                        //physGeom.AddRange(BitConverter.GetBytes(Convert.ToUInt32(t.v1)));
+                        //physGeom.AddRange(BitConverter.GetBytes(Convert.ToUInt32(t.v3)));
+                        //physGeom.AddRange(BitConverter.GetBytes(Convert.ToUInt32(t.v2)));
                     }
                 }
                 mesh.AddRange(BitConverter.GetBytes(Convert.ToUInt16(subMeshes.Count())));
@@ -511,6 +516,7 @@ namespace swMesh2XML
                     mesh.AddRange(new byte[] { 0x00, 0x00, 0x03, 0x00, 0x49, 0x44, 0x33, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x80, 0x3F });
                 }
                 mesh.AddRange(new byte[] { 0x00, 0x00 });
+                physGeom.AddRange(new byte[] { 0x00, 0x00 });
                 
 
                // Debug.WriteLine(mesh.Count);
