@@ -36,7 +36,7 @@ namespace swMesh2XML
         public MainWindow()
         {
             InitializeComponent();
-            GlobalVar.version = "v0.1.7-beta";
+            GlobalVar.version = "v0.1.8-beta";
         }
 
         private void OpenFile_Click(object sender, RoutedEventArgs e)
