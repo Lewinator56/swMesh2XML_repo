@@ -34,8 +34,8 @@ namespace swMesh2XML
             else
             {
                 cullingMin[0] = x < cullingMin[0] ? x : cullingMin[0];
-                cullingMin[0] = y < cullingMin[0] ? y : cullingMin[0];
-                cullingMin[0] = z < cullingMin[0] ? z : cullingMin[0];
+                cullingMin[1] = y < cullingMin[1] ? y : cullingMin[1];
+                cullingMin[2] = z < cullingMin[2] ? z : cullingMin[2];
             }
         }
         public void setCullingMax(Single x, Single y, Single z)
@@ -47,8 +47,8 @@ namespace swMesh2XML
             else
             {
                 cullingMax[0] = x > cullingMax[0] ? x : cullingMax[0];
-                cullingMax[0] = y > cullingMax[0] ? y : cullingMax[0];
-                cullingMax[0] = z > cullingMax[0] ? z : cullingMax[0];
+                cullingMax[1] = y > cullingMax[1] ? y : cullingMax[1];
+                cullingMax[2] = z > cullingMax[2] ? z : cullingMax[2];
             }
         }
         public void setShader(UInt16 shaderID)
