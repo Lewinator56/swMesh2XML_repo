@@ -42,10 +42,10 @@ namespace swMesh2XML
         private void OpenFile_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog opf = new Microsoft.Win32.OpenFileDialog();
-            opf.Filter = "Wavefront file (.obj)|*.obj";
+            //opf.Filter = "Wavefront file (.obj)|*.obj";
 
             // removed .mesh and .xml import for public release
-            //opf.Filter = "Stormworks mesh files (.mesh)|*.MESH|XML file (.xml)|*.xml|Wavefront file (.obj)|*.obj";
+            opf.Filter = "Stormworks mesh files (.mesh)|*.MESH|XML file (.xml)|*.xml|Wavefront file (.obj)|*.obj|Stormworks physics files (.phys)|*.PHYS";
             outTextBox.Width = double.NaN;
             outTextBox.TextWrapping = TextWrapping.NoWrap;
             
@@ -68,7 +68,10 @@ namespace swMesh2XML
                     openObj(opf.FileName);
                     toXML.IsEnabled = false;
                     
-                } else
+                } else if (System.IO.Path.GetExtension(opf.FileName) == ".phys")
+                {
+                    outTextBox.Text = swMesh2XML.Phys.ToXml(File.ReadAllBytes(opf.FileName));
+                }
                 {
                     showError("This isnt implemented yet, sorry");
 
